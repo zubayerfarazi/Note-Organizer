@@ -9,7 +9,7 @@ type NoteModalProps = {
   isOpen: boolean;
   onClose: () => void;
   note: {
-    _id: string;
+    id: string;
     title: string;
     content: string;
     category: string;
@@ -25,29 +25,32 @@ const NoteModal = ({ isOpen, onClose, note }: NoteModalProps) => {
   });
   const [categories, setCategories] = useState([]);
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleUpdate = async () => {
     try {
-      await api.patch(`/notes/${note._id}`, formData);
+      await api.put(`/notes/${note.id}`, formData);
+      toast.success("Note updated successfully!");
       onClose();
     } catch (error) {
+      toast.error("Failed to update note");
       console.error("Failed to update note", error);
     }
   };
 
   const handleDelete = async () => {
     try {
-      await api.delete(`/notes/${note._id}`);
+      await api.delete(`/notes/${note.id}`);
+      toast.success("Note deleted successfully!");
       onClose();
     } catch (error) {
+      toast.error("Failed to delete note");
       console.error("Failed to delete note", error);
     }
   };
@@ -66,56 +69,70 @@ const NoteModal = ({ isOpen, onClose, note }: NoteModalProps) => {
   }, []);
 
   return (
-    <Modal title="Note" isOpen={isOpen} onClose={onClose}>
-      <div className="space-y-5">
-        <div className="w-full">
-        <p>Select Category</p>
-        <select
-          name="category"
-          value={formData.category}
+    <Modal title="Edit Note" isOpen={isOpen} onClose={onClose}>
+      <div className="space-y-6 p-4">
+        {/* Category Selector */}
+        <div>
+          <label
+            htmlFor="category"
+            className="block mb-2 text-sm font-semibold text-gray-700"
+          >
+            Select Category
+          </label>
+          <select
+            id="category"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          >
+            {categories.length === 0 && <option>Loading...</option>}
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat._id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Title Input */}
+        <InputField
+          label="Title"
+          name="title"
+          value={formData.title}
           onChange={handleChange}
-          required
-          className="w-full border p-2 rounded"
-        >
-          <option value="">Select Category</option>
-          {categories.map((cat) => (
-            <option key={cat._id} value={cat.name}>
-              {cat.name}
-            </option>
-          ))}
-        </select>
-      </div>
+          placeholder="Enter note title"
+          className="w-full"
+        />
 
-      <InputField
-        label="Title"
-        name="title"
-        value={note.title}
-        onChange={handleChange}
-        placeholder="Title"
-      />
-      <TextAreaField
-        label="Content"
-        name="content"
-        value={formData.content}
-        onChange={handleChange}
-        rows={4}
-        placeholder="Content"
-      />
+        {/* Content TextArea */}
+        <TextAreaField
+          label="Content"
+          name="content"
+          value={formData.content}
+          onChange={handleChange}
+          rows={5}
+          placeholder="Enter note content"
+          className="w-full"
+        />
 
-      <div className="flex justify-between">
-        <button
-          onClick={handleUpdate}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Save Changes
-        </button>
-        <button
-          onClick={handleDelete}
-          className="bg-red-500 text-white px-4 py-2 rounded"
-        >
-          Delete
-        </button>
-      </div>
+        {/* Action Buttons */}
+        <div className="flex justify-end space-x-4 pt-4 border-t border-gray-200">
+          <button
+            onClick={handleDelete}
+            type="button"
+            className="rounded-md bg-red-600 px-5 py-2 text-white transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400"
+          >
+            Delete
+          </button>
+          <button
+            onClick={handleUpdate}
+            type="button"
+            className="rounded-md bg-blue-600 px-5 py-2 text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          >
+            Save Changes
+          </button>
+        </div>
       </div>
     </Modal>
   );

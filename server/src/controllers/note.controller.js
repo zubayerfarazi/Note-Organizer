@@ -36,43 +36,53 @@ const getNotes = async (req, res, next) => {
   try {
     const userId = req.user._id;
 
-    const { search = "", category, page = 1, limit = 6 } = req.query;
+    const search = req.query.search || "";
+    const category = req.query.category || null;
+    const page = req.query.page ? Math.max(1, Number(req.query.page)) : 1;
+    const limit = req.query.limit ? Math.max(1, Number(req.query.limit)) : 5;
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const escapeRegex = (text) => {
+      return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+    };
 
-    const regex = new RegExp(search, "i");
+    const searchRegex = new RegExp(".*" + escapeRegex(search) + ".*", "i");
 
     const filter = {
       user: userId,
-      $or: [{ title: { $regex: regex } }, { content: { $regex: regex } }],
+      $or: [
+        { title: { $regex: searchRegex } },
+        { content: { $regex: searchRegex } },
+      ],
     };
 
     if (category) {
       filter.category = category;
     }
 
-    const total = await Note.countDocuments(filter);
-
     const notes = await Note.find(filter)
       .populate("category")
       .sort("-createdAt")
-      .skip(skip)
-      .limit(parseInt(limit));
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const count = await Note.countDocuments(filter);
 
     return successResponse(res, {
       statusCode: 200,
       message: "Notes fetched successfully",
       payload: {
         notes,
-        totalItems: total,
-        totalPages: Math.ceil(total / parseInt(limit)),
-        currentPage: parseInt(page),
+        totalPage: Math.ceil(count / limit),
+        currentPage: page,
+        previousPage: page - 1 > 0 ? page - 1 : null,
+        nextPage: page + 1 <= Math.ceil(count / limit) ? page + 1 : null,
       },
     });
   } catch (error) {
     next(error);
   }
 };
+
 
 const getNoteById = async (req, res, next) => {
   try {
@@ -100,11 +110,11 @@ const getNoteById = async (req, res, next) => {
 const updateNoteById = async (req, res, next) => {
   try {
     const noteId = req.params.id;
-    const userId = req.user._id;
+    // const userId = req.user._id;
     const updatedData = req.body;
 
     const note = await Note.findOneAndUpdate(
-      { _id: noteId, user: userId },
+      { _id: noteId },
       { $set: updatedData },
       { new: true, runValidators: true }
     );

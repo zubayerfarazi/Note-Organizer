@@ -1,31 +1,50 @@
-import {  useState } from "react";
+import { useState } from "react";
 import NoteModal from "./NoteModal";
 
-const NoteCard = ({title, content, category, createdAt}: any) => {
+interface NoteCardProps  {
+  id: string;
+  title: string;
+  content: string;
+  category: {
+    name: string;
+  }
+  createdAt: string;
+}
+
+const NoteCard = ({ id, title, content, category, createdAt }: NoteCardProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <>
       <div
-        className="border rounded-lg p-4 shadow hover:bg-gray-100 cursor-pointer"
+        role="button"
+        tabIndex={0}
         onClick={() => setIsModalOpen(true)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") setIsModalOpen(true);
+        }}
+        className="border border-gray-200 rounded-lg p-5 shadow-sm transition-shadow hover:shadow-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400 cursor-pointer"
       >
-          <div>
-            <h3 className="text-lg font-bold mb-1">{title}</h3>
-            <p className="text-sm text-gray-600 truncate">{content}</p>
-            <div className="text-xs mt-2 text-blue-700">
-              {category.name}
-            </div>
-            <p className="text-xs text-gray-400">
-              {new Date(createdAt).toLocaleDateString()}
-            </p>
-          </div>
+        <p className="text-2xl font-bold mb-2">{title}</p>
+        <p className="text-gray-700 leading-relaxed whitespace-pre-wrap mb-2">{content}</p>
+        <div className="flex items-center justify-between">
+          <span className="inline-block bg-blue-100  text-sm font-medium px-3 py-1 rounded-full">
+            {category.name}
+          </span>
+          <time
+            dateTime={createdAt}
+            className="text-gray-500 text-sm"
+            title={new Date(createdAt).toLocaleString()}
+          >
+            {new Date(createdAt).toLocaleDateString()}
+          </time>
+        </div>
       </div>
 
       <NoteModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        note={{ title, content, category, createdAt }}
+        note={{ id, title, content, category, createdAt }}
       />
     </>
   );
