@@ -1,6 +1,10 @@
-const { cloudinaryCloudName, cloudinaryApiKey, cloudinaryApiSecret } = require('../secret');
+const cloudinary = require("cloudinary").v2;
 
-const cloudinary = require('cloudinary').v2;
+const {
+  cloudinaryCloudName,
+  cloudinaryApiKey,
+  cloudinaryApiSecret,
+} = require("../secret");
 
 cloudinary.config({
   cloud_name: cloudinaryCloudName,

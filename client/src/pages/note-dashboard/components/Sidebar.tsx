@@ -1,21 +1,26 @@
 import { useEffect, useState } from "react";
-import Modal from "./Modal";
+import Modal from "../../../component/modal/Modal";
 import NewCategoryFrom from "./NewCategoryFrom";
 import api from "../../../api/axios";
 import { toast } from "react-toastify";
 
-const Sidebar = ({ onCategorySelect, selectedCategory }: any) => {
+const Sidebar = ({
+  onCategorySelect,
+  selectedCategory,
+  isSidebarOpen,
+  setIsSidebarOpen,
+}: any) => {
   const [categories, setCategories] = useState([]);
   const [sortOption, setSortOption] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
+  // const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const getCategories = async () => {
     try {
       const response = await api.get("/categories");
       setCategories(response.data.payload.categories);
-    } catch (error) {
-      toast.error("Failed to fetch categories");
+    } catch (error: any) {
+      toast.error(error.message);
     }
   };
 
@@ -26,11 +31,14 @@ const Sidebar = ({ onCategorySelect, selectedCategory }: any) => {
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setSortOption(value);
+    // @ts-ignore
     let sortedCategories = [...categories];
 
     if (value === "az") {
+      // @ts-ignore
       sortedCategories.sort((a, b) => a.name.localeCompare(b.name));
     } else if (value === "za") {
+      // @ts-ignore
       sortedCategories.sort((a, b) => b.name.localeCompare(a.name));
     }
 
@@ -38,190 +46,84 @@ const Sidebar = ({ onCategorySelect, selectedCategory }: any) => {
   };
 
   return (
-    // <>
-    //   {/* Mobile Top Bar */}
-    //   <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-white shadow-md flex items-center justify-between px-4 py-3">
-    //     <div className="flex items-center gap-2">
-    //       <button
-    //         onClick={() => setIsSidebarOpen(true)}
-    //         className="p-2 rounded bg-blue-600 text-white shadow hover:bg-blue-700 focus:outline-none"
-    //       >
-    //         <FaBars size={20} />
-    //       </button>
-    //       <p className="text-lg font-semibold text-gray-800">Categories</p>
-    //     </div>
-    //   </div>
-
-    //   {/* Overlay */}
-    //   {isSidebarOpen && (
-    //     <div
-    //       onClick={() => setIsSidebarOpen(false)}
-    //       className="fixed inset-0 bg-[#000000b6] z-40 md:hidden"
-    //     />
-    //   )}
-
-    //   {/* Sidebar */}
-    //   <div
-    //     className={`
-    //       fixed top-0 left-0 h-full w-[260px] bg-white z-50
-    //       transform transition-transform duration-300 ease-in-out
-    //       ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-    //       md:relative md:translate-x-0 md:block
-    //     `}
-    //   >
-    //     {/* Mobile Close */}
-    //     <div className="flex items-center justify-between md:hidden p-4 border-b">
-    //       <p className="text-lg font-semibold">Categories</p>
-    //       <button onClick={() => setIsSidebarOpen(false)}>
-    //         <FaTimes size={20} />
-    //       </button>
-    //     </div>
-
-    //     {/* Sidebar Content */}
-    //     <aside className="p-4 overflow-y-auto h-screen mt-16 md:mt-0 bg-white border-r border-gray-300">
-    //       {/* Desktop Header */}
-    //       <div className="hidden md:flex items-center justify-between text-lg font-semibold mb-4">
-    //         <p>Categories</p>
-    //         <button
-    //           className="text-sm bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700"
-    //           onClick={() => setIsModalOpen(true)}
-    //         >
-    //           + Add
-    //         </button>
-    //       </div>
-
-    //       {/* Mobile Add Button */}
-    //       <div className="md:hidden mb-4 space-y-3">
-    //         <button
-    //           className="w-full bg-blue-600 text-white py-2 rounded text-sm font-medium hover:bg-blue-700"
-    //           onClick={() => setIsModalOpen(true)}
-    //         >
-    //           + Add Category
-    //         </button>
-    //       </div>
-
-    //       {/* Sort Dropdown */}
-    //       <div className="w-full mb-4">
-    //         <label className="block text-sm text-gray-600 mb-1">Sort By</label>
-    //         <select
-    //           name="sort"
-    //           value={sortOption}
-    //           onChange={handleSortChange}
-    //           className="text-sm border rounded px-2 py-[6px] w-full focus:outline-none focus:ring focus:ring-blue-300"
-    //         >
-    //           <option value="">Recent</option>
-    //           <option value="az">Name (A-Z)</option>
-    //           <option value="za">Name (Z-A)</option>
-    //         </select>
-    //       </div>
-
-    //       {/* Category List */}
-    //       <ul className="space-y-2">
-    //         <li
-    //           key="all-notes"
-    //           className="text-gray-700 hover:bg-blue-100 rounded-md px-2 py-1 cursor-pointer transition"
-    //           onClick={() => {
-    //             onCategorySelect(null);
-    //             setIsSidebarOpen(false);
-    //           }}
-    //         >
-    //           All Notes
-    //         </li>
-
-    //         {categories.map((cat) => (
-    //           <li
-    //             key={cat._id}
-    //             className="text-gray-700 hover:bg-blue-100 rounded-md px-2 py-1 cursor-pointer transition"
-    //             onClick={() => {
-    //               onCategorySelect(cat._id);
-    //               setIsSidebarOpen(false);
-    //             }}
-    //           >
-    //             {cat.name}
-    //           </li>
-    //         ))}
-    //       </ul>
-    //     </aside>
-    //   </div>
-
-    //   {/* Category Modal */}
-    //   <Modal
-    //     title="Create New Category"
-    //     isOpen={isModalOpen}
-    //     onClose={() => setIsModalOpen(false)}
-    //   >
-    //     <NewCategoryFrom
-    //       onClose={() => setIsModalOpen(false)}
-    //       refreshCategories={getCategories}
-    //     />
-    //   </Modal>
-    // </>
-
-    <div className="w-[240px] bg-white border-r border-gray-300">
-      <div className="border-b border-gray-300">
-        <div className="mb-2">
-          <p className="text-2xl font-bold text-center">Note Organizer</p>
-          <p className="text-sm text-center">For Headless Limited</p>
-        </div>
-      </div>
-
-      <div className="hidden md:block p-2">
-        <div className="flex items-center justify-between">
-          <p className="text-lg font-semibold">Categories</p>
-          <button
-            title="Add Category"
-            className="text-sm font-semibold border border-black  px-2.5 py-1 rounded hover:bg-black hover:text-white transition-all ease-in-out duration-300 cursor-pointer"
-            onClick={() => setIsModalOpen(true)}
-          >
-            Add
-          </button>
+    <>
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-[#000000b6] bg-opacity-30 z-40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+      <div className={`fixed md:static z-50 md:z-0 w-[260px] min-h-screen bg-white border-r border-gray-300 shadow-md transform transition-transform duration-300 ease-in-out
+        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
+        <div className="border-b border-gray-300 p-1">
+          <div className="text-center">
+            <p className="text-2xl font-bold text-gray-800">Note Organizer</p>
+            <p className="text-sm text-gray-500">For Headless Limited</p>
+          </div>
         </div>
 
-        <div className="w-full my-2">
-          <select
-            name="sort"
-            value={sortOption}
-            onChange={handleSortChange}
-            className="text-sm border border-gray-400 rounded px-2 py-[6px] w-full cursor-pointer"
-          >
-            <option value="">Recent</option>
-            <option value="az">Name (A-Z)</option>
-            <option value="za">Name (Z-A)</option>
-          </select>
-        </div>
+        <div className="overflow-y-auto px-4 py-3">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-lg font-semibold text-gray-700">Categories</p>
+            <button
+              title="Add Category"
+              className="text-xs font-medium border border-gray-800 px-3 py-1 rounded-md hover:bg-gray-800 hover:text-white transition cursor-pointer"
+              onClick={() => setIsModalOpen(true)}
+            >
+              Add
+            </button>
+          </div>
 
-        <ul className="space-y-2">
-          <li
-            key="all-notes"
-            className={`text-md font-semibold flex items-center justify-between px-2 py-1 rounded-md cursor-pointer transition ${
-              selectedCategory === null ? "bg-gray-300" : "hover:bg-gray-200"
-            }`}
-            onClick={() => {
-              onCategorySelect(null);
-              setIsSidebarOpen(false);
-            }}
-          >
-            <p>All Categories</p>
-            <p>{categories.length}</p>
-          </li>
+          <div className="mb-4">
+            <select
+              name="sort"
+              value={sortOption}
+              onChange={handleSortChange}
+              className="text-sm border border-gray-400 rounded-md px-3 py-2 w-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300"
+            >
+              <option value="">Sort by Recent</option>
+              <option value="az">Name (A-Z)</option>
+              <option value="za">Name (Z-A)</option>
+            </select>
+          </div>
 
-          {categories.map((cat: any) => (
+          <ul className="space-y-2">
             <li
-              key={cat._id}
-              className={`text-md font-semibold px-2 py-1 rounded-md cursor-pointer transition ${
-                selectedCategory === cat._id
-                  ? "bg-gray-300"
-                  : "hover:bg-gray-200"
+              key="all-notes"
+              className={`text-sm font-medium flex items-center justify-between px-3 py-2 rounded-md cursor-pointer transition-all duration-200 list-none ${
+                selectedCategory === null
+                  ? "bg-gray-300 text-gray-900"
+                  : "hover:bg-gray-100 text-gray-700"
               }`}
               onClick={() => {
-                onCategorySelect(cat._id);
+                onCategorySelect(null);
                 setIsSidebarOpen(false);
               }}
             >
-              {cat.name}
+              <span>All Categories</span>
+              <span className="text-xs bg-gray-200 px-2 py-0.5 rounded-full">
+                {categories.length}
+              </span>
             </li>
-          ))}
-        </ul>
+
+            {categories.map((cat: any) => (
+              <li
+                key={cat._id}
+                className={`text-sm font-medium px-3 py-2 rounded-md cursor-pointer transition-all duration-200 capitalize list-none ${
+                  selectedCategory === cat._id
+                    ? "bg-gray-300 text-gray-900"
+                    : "hover:bg-gray-100 text-gray-700"
+                }`}
+                onClick={() => {
+                  onCategorySelect(cat._id);
+                  setIsSidebarOpen(false);
+                }}
+              >
+                {cat.name}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       <Modal
@@ -234,7 +136,7 @@ const Sidebar = ({ onCategorySelect, selectedCategory }: any) => {
           refreshCategories={getCategories}
         />
       </Modal>
-    </div>
+    </>
   );
 };
 

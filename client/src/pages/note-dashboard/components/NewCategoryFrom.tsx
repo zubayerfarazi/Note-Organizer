@@ -4,9 +4,9 @@ import InputField from "../../../component/input/InputField";
 import { useAuth } from "../../../context/AuthContext";
 import { toast } from "react-toastify";
 
-const NewCategoryFrom = ({ onClose, refreshCategories }: { onClose: () => void }) => {
+const NewCategoryFrom = ({ onClose, refreshCategories }: any) => {
   const { user } = useAuth();
-  console.log(user)
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
   });
@@ -21,6 +21,7 @@ const NewCategoryFrom = ({ onClose, refreshCategories }: { onClose: () => void }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    setIsLoading(true);
     e.preventDefault();
     try {
       if (!user?._id) {
@@ -28,16 +29,17 @@ const NewCategoryFrom = ({ onClose, refreshCategories }: { onClose: () => void }
         return;
       }
 
-      const payload = {
-        ...formData,
+      const response = await api.post("/categories", {
+        name: formData.name,
         user: user._id,
-      };
-
-      const response = await api.post("/categories", { name: formData.name, user: user._id });
-      toast.success(response?.data.message);
-      refreshCategories();
-      onClose();
-    } catch (err) {
+      });
+      if (response) {
+        toast.success(response?.data.message);
+        refreshCategories();
+        onClose();
+        setIsLoading(false);
+      }
+    } catch (err: any) {
       toast.error(err.message);
     }
   };
@@ -55,9 +57,11 @@ const NewCategoryFrom = ({ onClose, refreshCategories }: { onClose: () => void }
 
       <button
         type="submit"
-        className="bg-blue-600 text-white px-4 py-2 rounded w-full cursor-pointer"
+        className="px-4 py-2 rounded-full border w-full hover:bg-black hover:text-white transition-all ease-in-out duration-300 cursor-pointer"
       >
-        Create Category
+        {
+          isLoading ? "Loading..." : "Create Category"
+        }
       </button>
     </form>
   );

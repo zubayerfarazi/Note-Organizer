@@ -1,16 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import NoteCard from "./components/NoteCard";
-import SearchBar from "./components/SearchBar";
 import Sidebar from "./components/Sidebar";
-import Modal from "./components/Modal";
+import Modal from "../../component/modal/Modal";
 import NewNoteModalForm from "./components/NewNoteForm";
 import { toast } from "react-toastify";
 import api from "../../api/axios";
 import Pagination from "../../component/pagination/Pagination";
-import { useAuth } from "../../context/AuthContext";
-import { FaUser } from "react-icons/fa";
-import { RiArrowDropDownLine, RiLogoutCircleLine } from "react-icons/ri";
-import { useNavigate } from "react-router-dom";
+import Header from "./components/Header";
+import SearchBar from "./components/SearchBar";
 
 const NotesDashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,26 +17,7 @@ const NotesDashboard = () => {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
-  const { user } = useAuth();
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setShowUserDropdown(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const fetchNotes = async () => {
     try {
@@ -54,9 +32,9 @@ const NotesDashboard = () => {
       const response = await api.get("/notes", { params });
 
       setNoteData(response.data.payload.notes);
-      setTotalPages(response.data.payload.totalPage); // ✅ Adjust this if your backend uses totalPages
+      setTotalPages(response.data.payload.totalPage);
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Error fetching notes.");
+      toast.error(error.message);
     }
   };
 
@@ -68,90 +46,45 @@ const NotesDashboard = () => {
     setPage(selected + 1);
   };
 
-  const handleLogout = async() =>{
-    try {
-      const response = await api.post(`/logout`);
-      if(response){
-        toast.success(response.data.message)
-        navigate("/login");
-      }
-    } catch (error) {
-      toast.error(error.message)
-    }
-
-  }
-
   return (
     <div className="flex min-h-screen">
       <Sidebar
         selectedCategory={selectedCategory}
         onCategorySelect={setSelectedCategory}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
       />
 
-      <main className="flex-1 mt-12 md:mt-0">
-        <div className="px-4 py-[9px] border-b border-gray-300">
-          <div className="flex justify-between items-center">
+      <main className="flex-1">
+        <Header
+          isSidebarOpen={isSidebarOpen}
+          setIsSidebarOpen={setIsSidebarOpen}
+        />
+
+        <div className="flex flex-wrap gap-4 items-center justify-between md:justify-end mt-2 px-4 bg-gray-50">
+          <div className="md:hidden block">
             <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-
-            <div>
-              <div
-                className="flex items-center gap-2 cursor-pointer"
-                onClick={() => setShowUserDropdown(!showUserDropdown)}
-              >
-                <FaUser className="text-3xl border border-gray-300 rounded-full p-1" />
-                <RiArrowDropDownLine className="text-xl" />
-                {/* <div className="flex items-center gap-1">
-                  <p>{user?.name}</p>
-                </div> */}
-              </div>
-
-              {showUserDropdown && (
-                <div
-                  ref={dropdownRef}
-                  className="absolute top-15 right-1 bg-white shadow-xl border border-gray-400 p-2"
-                >
-                  <div className="border-b border-gray-400 mb-2">
-                    <div className="flex items-center gap-1 bg-gray-100 mb-1">
-                      <FaUser className="text-3xl border border-gray-300 rounded-full p-1" />
-                      <p className="text-[15px] font-semibold text-gray-800">
-                        {user?.name}
-                      </p>
-                    </div>
-                  </div>
-                  {/* <MenuItem
-                    icon={<RiLogoutCircleLine />}
-                    text="Logout"
-                    className="text-red-500 font-medium hover:bg-[#e68a2c]"
-                    onClick={handleLogout}
-                  /> */}
-                  <div className="flex items-center gap-2 hover:bg-gray-300 p-2 rounded cursor-pointer" onClick={handleLogout}>
-                    <RiLogoutCircleLine />
-                    <p className="font-semibold">LogOut</p>
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
-        </div>
-
-        <div className="flex items-center justify-end mb-4">
           <button
             onClick={() => setIsModalOpen(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md cursor-pointer"
+            className="bg-black text-white px-4 py-2 rounded-full font-semibold hover:text-black hover:bg-white hover:border transition-all ease-in-out duration-300 cursor-pointer"
           >
             Create New Note
           </button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {noteData.map((note) => (
+        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4 px-4 bg-gray-50">
+          {noteData.map((note: any) => (
             <NoteCard
               key={note._id}
               id={note._id}
               title={note.title}
+              image={note.image}
               content={note.content}
               category={note.category}
               createdAt={note.createdAt}
+              // @ts-ignore
+              refreshNotes={fetchNotes}
             />
           ))}
         </div>

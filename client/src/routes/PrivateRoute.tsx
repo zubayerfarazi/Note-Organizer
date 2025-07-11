@@ -4,6 +4,7 @@ import api from "../api/axios";
 import { useAuth } from "../context/AuthContext";
 
 const PrivateRoute = () => {
+  // @ts-ignore
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
   const navigate = useNavigate();
