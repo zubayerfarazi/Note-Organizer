@@ -10,15 +10,18 @@ import { toast } from "react-toastify";
 const Header = ({
   isSidebarOpen,
   setIsSidebarOpen,
+  searchTerm,
+  setSearchTerm,
 }: {
   isSidebarOpen: boolean;
   setIsSidebarOpen: (open: boolean) => void;
+  searchTerm: any;
+  setSearchTerm: any;
 }) => {
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

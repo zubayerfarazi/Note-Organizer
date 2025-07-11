@@ -59,6 +59,7 @@ const NotesDashboard = () => {
         <Header
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
+          searchTerm={searchTerm} setSearchTerm={setSearchTerm}
         />
 
         <div className="flex flex-wrap gap-4 items-center justify-between md:justify-end mt-2 px-4 bg-gray-50">
