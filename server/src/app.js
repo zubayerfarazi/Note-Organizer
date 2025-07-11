@@ -24,6 +24,12 @@ const limiter = rateLimit({
 
 const app = express();
 
+app.use(
+  cors({
+    origin: "https://note-organizer-frontend.onrender.com",
+    credentials: true,              
+  })
+);
 app.use(morgan('dev'));
 app.use(limiter);
 app.use(helmet());
@@ -31,12 +37,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(sanitizeInput);
 app.use(cookieParser());
-app.use(
-  cors({
-    origin: "https://note-organizer-frontend.onrender.com",
-    credentials: true,              
-  })
-);
 
 app.get('/', (req, res) => {
   res.status(200).send("<p>Welcome to the server!</p>");
