@@ -42,23 +42,29 @@ A full-featured MERN (MongoDB, Express.js, React, Node.js) stack note-taking app
 git clone https://github.com/yourusername/note-organizer.git
 cd note-organizer
 
-```Required .env Variables
-Create a .env file in the server folder:
+🔧 Backend Setup (/server)
+📄 Create .env File in the server Folder
+
 SERVER_PORT=3003
 WINDOW_MS=900000
 LIMIT=100
+
 MONGOOSE_URI=your_mongodb_uri
+
 JWT_SECRET_KEY=your_access_token_secret
 JWT_REFRESH_KEY=your_refresh_token_secret
 JWT_FORGOT_SECRET_KEY=your_forgot_password_secret
+
 SMTP_USER=your_email@example.com
 SMTP_PASSWORD=your_email_password
+
 CLIENT_URI=http://localhost:5173
+
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 
-```equired .env Variables
-Create a .env file in the client folder:
-VITE_API_BASE_URL=http://localhost:3003/api/v1
+🎨 Frontend Setup (/client)
+📄 Create .env File in the client Folder
 
+VITE_API_BASE_URL=http://localhost:3003/api/v1
