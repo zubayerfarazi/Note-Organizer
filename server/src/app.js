@@ -26,7 +26,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://note-organizer-backend.onrender.com",
+    origin: "https://note-organizer-frontend.onrender.com",
     credentials: true,              
   })
 );
