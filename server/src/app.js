@@ -13,19 +13,19 @@ const authRoute = require('./routes/auth.route');
 const noteRoute = require('./routes/note.route');
 const { categoryRoute } = require('./routes/category.route');
 
-const limiter = rateLimit({
-	windowMs: windowMsLimit,
-	limit: limitPerIP,
-	message: "Too many requests, please try again later.",
-  headers: true,
-  standardHeaders: "draft-7",
-  legacyHeaders: false,
-})
+// const limiter = rateLimit({
+// 	windowMs: windowMsLimit,
+// 	limit: limitPerIP,
+// 	message: "Too many requests, please try again later.",
+//   headers: true,
+//   standardHeaders: "draft-7",
+//   legacyHeaders: false,
+// })
 
 const app = express();
 
 app.use(morgan('dev'));
-app.use(limiter);
+// app.use(limiter);
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
