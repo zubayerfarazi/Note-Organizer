@@ -33,7 +33,7 @@ app.use(sanitizeInput);
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://note-organizer-backend.onrender.com",
     credentials: true,              
   })
 );
