@@ -13,30 +13,30 @@ const authRoute = require('./routes/auth.route');
 const noteRoute = require('./routes/note.route');
 const { categoryRoute } = require('./routes/category.route');
 
-// const limiter = rateLimit({
-// 	windowMs: windowMsLimit,
-// 	limit: limitPerIP,
-// 	message: "Too many requests, please try again later.",
-//   headers: true,
-//   standardHeaders: "draft-7",
-//   legacyHeaders: false,
-// })
+const limiter = rateLimit({
+	windowMs: windowMsLimit,
+	limit: limitPerIP,
+	message: "Too many requests, please try again later.",
+  headers: true,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+})
 
 const app = express();
 
-app.use(
-  cors({
-    origin: "https://note-organizer-frontend.onrender.com",
-    credentials: true,              
-  })
-);
 app.use(morgan('dev'));
-// app.use(limiter);
+app.use(limiter);
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(sanitizeInput);
 app.use(cookieParser());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,              
+  })
+);
 
 app.get('/', (req, res) => {
   res.status(200).send("<p>Welcome to the server!</p>");
